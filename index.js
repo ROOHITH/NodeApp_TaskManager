@@ -1,29 +1,42 @@
-
-const express = require('express')
-const path = require('path')
-const app = express();
-const PORT = 5000;
-const tasks = require('./route/task')
-const connection = require('./db/dbconnnect')
-app.use(express.static('./public'))
+const exp = require('constants');
+const express = require('express');
+const  path  = require('path');
 require('dotenv').config()
-app.use('/',tasks)
+const app = express();
+const con = require('./db/connection')
 
-//for all unspecified routes
-app.all('*',(req,res)=>{
-    res.status(404).send(`not avaialable `);
+var bodyParser = require('body-parser');
+const task = require('./routes/task')
+const Port = 5000;
+//public files
+app.use(express.static('./public'))
+
+//middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json())
+
+//routes
+
+
+app.use('/items',task)
+
+
+
+app.get('/',(req,res)=>{
+    res.sendFile(path.resolve(__dirname,"./public/html/index.html"))
 })
-
 const start = async ()=>{
-try{
-    await connection(process.env.MONGO_URI)
-    app.listen(PORT,()=>{
-        console.log("app listening");
-    })
+        try {
+            
+            await con(process.env.MONGO_URI)
 
-}catch(err){
-    console.log(err)
+            app.listen(Port,()=>{
+                console.log("app is listening")
+            })
+        } catch (error) {
+            console.log(error);
+        }
+}
+start();
 
-}
-}
-start()
